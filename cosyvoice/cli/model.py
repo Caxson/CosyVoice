@@ -256,6 +256,8 @@ class CosyVoice2Model(CosyVoiceModel):
         self.fp16 = fp16
         # NOTE must matching training static_chunk_size
         self.token_hop_len = 25
+        # first frame uses a smaller hop to reduce first-packet latency
+        self.first_token_hop_len = 5
         # NOTE increase token_hop_len incrementally to avoid duplicate inference
         self.token_max_hop_len = 4 * self.token_hop_len
         self.stream_scale_factor = 2
@@ -342,10 +344,11 @@ class CosyVoice2Model(CosyVoiceModel):
         p.start()
         if stream is True:
             token_offset = 0
-            prompt_token_pad = int(np.ceil(flow_prompt_speech_token.shape[1] / self.token_hop_len) * self.token_hop_len - flow_prompt_speech_token.shape[1])
+            token_hop_len = self.token_hop_len
+            prompt_token_pad = int(np.ceil(flow_prompt_speech_token.shape[1] / token_hop_len) * token_hop_len - flow_prompt_speech_token.shape[1])
             while True:
-                time.sleep(0.1)
-                this_token_hop_len = self.token_hop_len + prompt_token_pad if token_offset == 0 else self.token_hop_len
+                time.sleep(0.025)
+                this_token_hop_len = self.first_token_hop_len + prompt_token_pad if token_offset == 0 else token_hop_len
                 if len(self.tts_speech_token_dict[this_uuid]) - token_offset >= this_token_hop_len + self.flow.pre_lookahead_len:
                     this_tts_speech_token = torch.tensor(self.tts_speech_token_dict[this_uuid][:token_offset + this_token_hop_len + self.flow.pre_lookahead_len]).unsqueeze(dim=0)
                     this_tts_speech = self.token2wav(token=this_tts_speech_token,
@@ -357,7 +360,7 @@ class CosyVoice2Model(CosyVoiceModel):
                                                      stream=stream,
                                                      finalize=False)
                     token_offset += this_token_hop_len
-                    self.token_hop_len = min(self.token_max_hop_len, self.token_hop_len * self.stream_scale_factor)
+                    token_hop_len = min(self.token_max_hop_len, token_hop_len * self.stream_scale_factor)
                     yield {'tts_speech': this_tts_speech.cpu()}
                 if self.llm_end_dict[this_uuid] is True and len(self.tts_speech_token_dict[this_uuid]) - token_offset < this_token_hop_len + self.flow.pre_lookahead_len:
                     break
@@ -408,6 +411,8 @@ class CosyVoice3Model(CosyVoice2Model):
         self.fp16 = fp16
         # NOTE must matching training static_chunk_size
         self.token_hop_len = 25
+        # first frame hop: trade ~400ms extra latency for better first-chunk quality
+        self.first_token_hop_len = 5
         # NOTE increase token_hop_len incrementally to avoid duplicate inference
         self.token_max_hop_len = 4 * self.token_hop_len
         self.stream_scale_factor = 2
