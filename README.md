@@ -1,119 +1,58 @@
-![SVG Banners](https://svg-banners.vercel.app/api?type=origin&text1=CosyVoice🤠&text2=Text-to-Speech%20💖%20Large%20Language%20Model&width=800&height=210)
+# CosyVoice - 语音合成系统
 
-## 👉🏻 CosyVoice 👈🏻
+基于 FunAudioLLM/CosyVoice 的优化版本，提供流式 TTS HTTP 服务。
 
-**Fun-CosyVoice 3.0**: [Demos](https://funaudiollm.github.io/cosyvoice3/); [Paper](https://arxiv.org/pdf/2505.17589); [Modelscope](https://www.modelscope.cn/models/FunAudioLLM/Fun-CosyVoice3-0.5B-2512); [Huggingface](https://huggingface.co/FunAudioLLM/Fun-CosyVoice3-0.5B-2512); [CV3-Eval](https://github.com/FunAudioLLM/CV3-Eval)
+## 🚀 最近优化与修复
 
-**CosyVoice 2.0**: [Demos](https://funaudiollm.github.io/cosyvoice2/); [Paper](https://arxiv.org/pdf/2412.10117); [Modelscope](https://www.modelscope.cn/models/iic/CosyVoice2-0.5B); [HuggingFace](https://huggingface.co/FunAudioLLM/CosyVoice2-0.5B)
+本仓库基于官方 CosyVoice 进行了以下优化和bug修复：
 
-**CosyVoice 1.0**: [Demos](https://fun-audio-llm.github.io); [Paper](https://funaudiollm.github.io/pdf/CosyVoice_v1.pdf); [Modelscope](https://www.modelscope.cn/models/iic/CosyVoice-300M); [HuggingFace](https://huggingface.co/FunAudioLLM/CosyVoice-300M)
+### ✨ 新功能
+- **一键启动服务脚本** (`start_server.py`, `tts_server.py`)
+  - 流式 TTS HTTP 服务，默认端口 6006
+  - 支持 zero_shot / cross_lingual / instruct2 / sft 模式
+  - 支持 PCM 流式输出和 MP3 非流式输出
+  - 音色克隆持久化存储，支持音色管理（克隆/列表/删除）
+  - 相同参考音频自动缓存，避免重复提取特征
+  - 实时打印首帧时延和逐帧时延统计
+  - 支持 TensorRT 和 vLLM 加速
 
-## Highlight🔥
+### ⚡ 性能优化
+- **流式首包延迟优化**：显著降低流式推理的首帧响应延迟
+- **状态管理修复**：修复 `token_hop_len` 状态变异问题，避免多次推理时的状态污染
+- **浮点精度改进**：使用 float64 避免精度误差，弃用 CPU 计算以提升性能
+- **添加依赖支持**：增加 pydub 和 lameenc，支持更好的音频编码
 
-**Fun-CosyVoice 3.0** is an advanced text-to-speech (TTS) system based on large language models (LLM), surpassing its predecessor (CosyVoice 2.0) in content consistency, speaker similarity, and prosody naturalness. It is designed for zero-shot multilingual speech synthesis in the wild.
-### Key Features
-- **Language Coverage**: Covers 9 common languages (Chinese, English, Japanese, Korean, German, Spanish, French, Italian, Russian), 18+ Chinese dialects/accents (Guangdong, Minnan, Sichuan, Dongbei, Shan3xi, Shan1xi, Shanghai, Tianjin, Shandong, Ningxia, Gansu, etc.) and meanwhile supports both multi-lingual/cross-lingual zero-shot voice cloning.
-- **Content Consistency & Naturalness**: Achieves state-of-the-art performance in content consistency, speaker similarity, and prosody naturalness.
-- **Pronunciation Inpainting**: Supports pronunciation inpainting of Chinese Pinyin and English CMU phonemes, providing more controllability and thus suitable for production use.
-- **Text Normalization**: Supports reading of numbers, special symbols and various text formats without a traditional frontend module.
-- **Bi-Streaming**: Support both text-in streaming and audio-out streaming, and achieves latency as low as 150ms while maintaining high-quality audio output.
-- **Instruct Support**: Supports various instructions such as languages, dialects, emotions, speed, volume, etc.
+### 🐛 Bug修复
+- **训练稳定性修复**：解决 CausalMaskedDiffWithDiT 训练中的张量形状不匹配和索引越界问题
+- **vLLM兼容性**：修复 vllm yaml 版本兼容性问题
+- **RAS修复**：修复 Repetition Aware Sampling 相关问题
 
+## 📦 快速开始
 
-## Roadmap
+### 环境安装
 
-- [x] 2025/12
+```bash
+# 克隆仓库
+git clone --recursive https://github.com/FunAudioLLM/CosyVoice.git
+cd CosyVoice
+git submodule update --init --recursive
 
-    - [x] release Fun-CosyVoice3-0.5B-2512 base model, rl model and its training/inference script
-    - [x] release Fun-CosyVoice3-0.5B modelscope gradio space
+# 创建 Conda 环境
+conda create -n cosyvoice -y python=3.10
+conda activate cosyvoice
+pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host=mirrors.aliyun.com
 
-- [x] 2025/08
+# 如果遇到 sox 兼容性问题
+# Ubuntu
+sudo apt-get install sox libsox-dev
+# CentOS
+sudo yum install sox sox-devel
+```
 
-    - [x] Thanks to the contribution from NVIDIA Yuekai Zhang, add triton trtllm runtime support and cosyvoice2 grpo training support
+### 模型下载
 
-- [x] 2025/07
-
-    - [x] release Fun-CosyVoice 3.0 eval set
-
-- [x] 2025/05
-
-    - [x] add CosyVoice2-0.5B vllm support
-
-- [x] 2024/12
-
-    - [x] 25hz CosyVoice2-0.5B released
-
-- [x] 2024/09
-
-    - [x] 25hz CosyVoice-300M base model
-    - [x] 25hz CosyVoice-300M voice conversion function
-
-- [x] 2024/08
-
-    - [x] Repetition Aware Sampling(RAS) inference for llm stability
-    - [x] Streaming inference mode support, including kv cache and sdpa for rtf optimization
-
-- [x] 2024/07
-
-    - [x] Flow matching training support
-    - [x] WeTextProcessing support when ttsfrd is not available
-    - [x] Fastapi server and client
-
-## Evaluation
-
-| Model | Open-Source | Model Size | test-zh<br>CER (%) ↓ | test-zh<br>SS (%) ↑ | test-en<br>WER (%) ↓ | test-en<br>SS (%) ↑ | test-hard<br>CER (%) ↓ | test-hard<br>SS (%) ↑ |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| Human | - | - | 1.26 | 75.5 | 2.14 | 73.4 | - | - |
-| Seed-TTS | ❌ | - | 1.12 | 79.6 | 2.25 | 76.2 | 7.59 | 77.6 |
-| MiniMax-Speech | ❌ | - | 0.83 | 78.3 | 1.65 | 69.2 | - | - |
-| F5-TTS | ✅ | 0.3B | 1.52 | 74.1 | 2.00 | 64.7 | 8.67 | 71.3 |
-| Spark TTS | ✅ | 0.5B | 1.2 | 66.0 | 1.98 | 57.3 | - | - |
-| CosyVoice2 | ✅ | 0.5B | 1.45 | 75.7 | 2.57 | 65.9 | 6.83 | 72.4 |
-| FireRedTTS2 | ✅ | 1.5B | 1.14 | 73.2 | 1.95 | 66.5 | - | - |
-| Index-TTS2 | ✅ | 1.5B | 1.03 | 76.5 | 2.23 | 70.6 | 7.12 | 75.5 |
-| VibeVoice-1.5B | ✅ | 1.5B | 1.16 | 74.4 | 3.04 | 68.9 | - | - |
-| VibeVoice-Realtime | ✅ | 0.5B | - | - | 2.05 | 63.3 | - | - |
-| HiggsAudio-v2 | ✅ | 3B | 1.50 | 74.0 | 2.44 | 67.7 | - | - |
-| VoxCPM | ✅ | 0.5B | 0.93 | 77.2 | 1.85 | 72.9 | 8.87 | 73.0 |
-| GLM-TTS | ✅ | 1.5B | 1.03 | 76.1 | - | - | - | - |
-| GLM-TTS RL | ✅ | 1.5B | 0.89 | 76.4 | - | - | - | - |
-| Fun-CosyVoice3-0.5B-2512 | ✅ | 0.5B | 1.21 | 78.0 | 2.24 | 71.8 | 6.71 | 75.8 |
-| Fun-CosyVoice3-0.5B-2512_RL | ✅ | 0.5B | 0.81 | 77.4 | 1.68 | 69.5 | 5.44 | 75.0 |
-
-
-## Install
-
-### Clone and install
-
-- Clone the repo
-    ``` sh
-    git clone --recursive https://github.com/FunAudioLLM/CosyVoice.git
-    # If you failed to clone the submodule due to network failures, please run the following command until success
-    cd CosyVoice
-    git submodule update --init --recursive
-    ```
-
-- Install Conda: please see https://docs.conda.io/en/latest/miniconda.html
-- Create Conda env:
-
-    ``` sh
-    conda create -n cosyvoice -y python=3.10
-    conda activate cosyvoice
-    pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host=mirrors.aliyun.com
-
-    # If you encounter sox compatibility issues
-    # ubuntu
-    sudo apt-get install sox libsox-dev
-    # centos
-    sudo yum install sox sox-devel
-    ```
-
-### Model download
-
-We strongly recommend that you download our pretrained `Fun-CosyVoice3-0.5B` `CosyVoice2-0.5B` `CosyVoice-300M` `CosyVoice-300M-SFT` `CosyVoice-300M-Instruct` model and `CosyVoice-ttsfrd` resource.
-
-``` python
-# modelscope SDK model download
+```python
+# 使用 modelscope SDK 下载模型（国内推荐）
 from modelscope import snapshot_download
 snapshot_download('FunAudioLLM/Fun-CosyVoice3-0.5B-2512', local_dir='pretrained_models/Fun-CosyVoice3-0.5B')
 snapshot_download('iic/CosyVoice2-0.5B', local_dir='pretrained_models/CosyVoice2-0.5B')
@@ -122,113 +61,190 @@ snapshot_download('iic/CosyVoice-300M-SFT', local_dir='pretrained_models/CosyVoi
 snapshot_download('iic/CosyVoice-300M-Instruct', local_dir='pretrained_models/CosyVoice-300M-Instruct')
 snapshot_download('iic/CosyVoice-ttsfrd', local_dir='pretrained_models/CosyVoice-ttsfrd')
 
-# for oversea users, huggingface SDK model download
+# 海外用户使用 HuggingFace
 from huggingface_hub import snapshot_download
 snapshot_download('FunAudioLLM/Fun-CosyVoice3-0.5B-2512', local_dir='pretrained_models/Fun-CosyVoice3-0.5B')
-snapshot_download('FunAudioLLM/CosyVoice2-0.5B', local_dir='pretrained_models/CosyVoice2-0.5B')
-snapshot_download('FunAudioLLM/CosyVoice-300M', local_dir='pretrained_models/CosyVoice-300M')
-snapshot_download('FunAudioLLM/CosyVoice-300M-SFT', local_dir='pretrained_models/CosyVoice-300M-SFT')
-snapshot_download('FunAudioLLM/CosyVoice-300M-Instruct', local_dir='pretrained_models/CosyVoice-300M-Instruct')
-snapshot_download('FunAudioLLM/CosyVoice-ttsfrd', local_dir='pretrained_models/CosyVoice-ttsfrd')
+# ... 其他模型类似
 ```
 
-Optionally, you can unzip `ttsfrd` resource and install `ttsfrd` package for better text normalization performance.
+## 🎯 一键启动TTS服务
 
-Notice that this step is not necessary. If you do not install `ttsfrd` package, we will use wetext by default.
+### 方式一：使用启动脚本（推荐）
 
-``` sh
-cd pretrained_models/CosyVoice-ttsfrd/
-unzip resource.zip -d .
-pip install ttsfrd_dependency-0.1-py3-none-any.whl
-pip install ttsfrd-0.4.2-cp310-cp310-linux_x86_64.whl
+编辑 `start_server.py` 配置您的参数，然后运行：
+
+```bash
+python3 start_server.py
 ```
 
-### Basic Usage
+脚本会在后台启动服务，日志输出到 `/tmp/tts_server.log`
 
-We strongly recommend using `Fun-CosyVoice3-0.5B` for better performance.
-Follow the code in `example.py` for detailed usage of each model.
-```sh
+### 方式二：直接启动
+
+```bash
+python3 tts_server.py \
+  --model_dir pretrained_models/Fun-CosyVoice3-0.5B \
+  --port 6006 \
+  --prompt_wav your_reference.wav \
+  --prompt_text "You are a helpful assistant.<|endofprompt|>这里是参考音频的文本内容" \
+  --spk_id your_voice_id \
+  --load_trt \
+  --load_vllm
+```
+
+**参数说明：**
+- `--model_dir`: 模型路径（本地路径或 modelscope repo id）
+- `--port`: 服务端口（默认 6006）
+- `--host`: 监听地址（默认 0.0.0.0）
+- `--fp16`: 启用 FP16 推理（可选）
+- `--load_trt`: 启用 TensorRT 加速 flow decoder（推荐）
+- `--load_vllm`: 启用 vLLM 加速 LLM 推理（推荐）
+- `--prompt_wav`: 默认参考音频路径（配置后启用 /tts 简化接口）
+- `--prompt_text`: 默认参考音频对应的文本
+- `--spk_id`: 默认音色 ID
+
+### API 接口
+
+服务启动后，可通过以下接口调用：
+
+#### 1. `/tts` - 简化TTS接口（需配置默认音色）
+```bash
+curl -X POST "http://localhost:6006/tts" \
+  -F "tts_text=你好，这是一段测试文本" \
+  -F "format=mp3" \
+  --output output.mp3
+```
+
+#### 2. `/inference_zero_shot` - 零样本克隆
+```bash
+curl -X POST "http://localhost:6006/inference_zero_shot" \
+  -F "tts_text=你好，这是一段测试文本" \
+  -F "prompt_text=参考音频的文本" \
+  -F "prompt_wav=@reference.wav" \
+  -F "format=pcm" \
+  --output output.pcm
+```
+
+#### 3. `/voice/clone` - 音色克隆（持久化）
+```bash
+curl -X POST "http://localhost:6006/voice/clone" \
+  -F "prompt_wav=@reference.wav" \
+  -F "prompt_text=参考音频的文本" \
+  -F "voice_id=my_voice"
+```
+
+#### 4. `/voice/list` - 列出所有克隆音色
+```bash
+curl "http://localhost:6006/voice/list"
+```
+
+#### 5. `/voice/delete` - 删除音色
+```bash
+curl -X POST "http://localhost:6006/voice/delete" \
+  -H "Content-Type: application/json" \
+  -d '{"voice_id":"my_voice"}'
+```
+
+#### 6. 其他接口
+- `/inference_cross_lingual` - 跨语言合成
+- `/inference_instruct2` - 指令合成（CosyVoice2/3）
+- `/inference_sft` - 内置音色合成
+- `/health` - 健康检查
+- `/spk_cache` - 查看缓存状态
+
+**格式说明：**
+- `format=pcm`：流式输出（低延迟，实时打印帧时延）
+- `format=mp3`：非流式输出（完整编码后返回，打印合成/编码/总耗时）
+
+## 💡 基本使用
+
+### Python 示例
+```bash
 python example.py
 ```
 
-#### vLLM Usage
-CosyVoice2/3 now supports **vLLM 0.11.x+ (V1 engine)** and **vLLM 0.9.0 (legacy)**.
-Older vllm version(<0.9.0) do not support CosyVoice inference, and versions in between (e.g., 0.10.x) are not tested.
+### vLLM 加速（推荐）
+CosyVoice2/3 支持 **vLLM 0.11.x+ (V1 engine)** 和 **vLLM 0.9.0 (legacy)**
 
-Notice that `vllm` has a lot of specific requirements. You can create a new env to in case your hardward do not support vllm and old env is corrupted.
-
-``` sh
+```bash
 conda create -n cosyvoice_vllm --clone cosyvoice
 conda activate cosyvoice_vllm
-# for vllm==0.9.0
-pip install vllm==v0.9.0 transformers==4.51.3 numpy==1.26.4 -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host=mirrors.aliyun.com
-# for vllm>=0.11.0
+# 安装 vLLM
 pip install vllm==v0.11.0 transformers==4.57.1 numpy==1.26.4 -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host=mirrors.aliyun.com
 python vllm_example.py
 ```
 
-#### Start web demo
-
-You can use our web demo page to get familiar with CosyVoice quickly.
-
-Please see the demo website for details.
-
-``` python
-# change iic/CosyVoice-300M-SFT for sft inference, or iic/CosyVoice-300M-Instruct for instruct inference
+### Web UI
+```bash
+# 修改模型路径以使用不同的模型
 python3 webui.py --port 50000 --model_dir pretrained_models/CosyVoice-300M
 ```
 
-#### Advanced Usage
+## 🔧 高级用法
 
-For advanced users, we have provided training and inference scripts in `examples/libritts`.
+### TensorRT-LLM 加速部署
+使用 TensorRT-LLM 可获得 4x 加速：
 
-#### Build for deployment
-
-Optionally, if you want service deployment,
-You can run the following steps.
-
-``` sh
-cd runtime/python
-docker build -t cosyvoice:v1.0 .
-# change iic/CosyVoice-300M to iic/CosyVoice-300M-Instruct if you want to use instruct inference
-# for grpc usage
-docker run -d --runtime=nvidia -p 50000:50000 cosyvoice:v1.0 /bin/bash -c "cd /opt/CosyVoice/CosyVoice/runtime/python/grpc && python3 server.py --port 50000 --max_conc 4 --model_dir iic/CosyVoice-300M && sleep infinity"
-cd grpc && python3 client.py --port 50000 --mode <sft|zero_shot|cross_lingual|instruct>
-# for fastapi usage
-docker run -d --runtime=nvidia -p 50000:50000 cosyvoice:v1.0 /bin/bash -c "cd /opt/CosyVoice/CosyVoice/runtime/python/fastapi && python3 server.py --port 50000 --model_dir iic/CosyVoice-300M && sleep infinity"
-cd fastapi && python3 client.py --port 50000 --mode <sft|zero_shot|cross_lingual|instruct>
-```
-
-#### Using Nvidia TensorRT-LLM for deployment
-
-Using TensorRT-LLM to accelerate cosyvoice2 llm could give 4x acceleration comparing with huggingface transformers implementation.
-To quick start:
-
-``` sh
+```bash
 cd runtime/triton_trtllm
 docker compose up -d
 ```
-For more details, you could check [here](https://github.com/FunAudioLLM/CosyVoice/tree/main/runtime/triton_trtllm)
 
-## Discussion & Communication
+详情参考：[runtime/triton_trtllm](https://github.com/FunAudioLLM/CosyVoice/tree/main/runtime/triton_trtllm)
 
-You can directly discuss on [Github Issues](https://github.com/FunAudioLLM/CosyVoice/issues).
+### Docker 部署
+```bash
+cd runtime/python
+docker build -t cosyvoice:v1.0 .
 
-You can also scan the QR code to join our official Dingding chat group.
+# gRPC 方式
+docker run -d --runtime=nvidia -p 50000:50000 cosyvoice:v1.0 \
+  /bin/bash -c "cd /opt/CosyVoice/CosyVoice/runtime/python/grpc && \
+  python3 server.py --port 50000 --max_conc 4 --model_dir iic/CosyVoice-300M && sleep infinity"
 
-<img src="./asset/dingding.png" width="250px">
+# FastAPI 方式
+docker run -d --runtime=nvidia -p 50000:50000 cosyvoice:v1.0 \
+  /bin/bash -c "cd /opt/CosyVoice/CosyVoice/runtime/python/fastapi && \
+  python3 server.py --port 50000 --model_dir iic/CosyVoice-300M && sleep infinity"
+```
 
-## Acknowledge
+## 📊 模型性能
 
-1. We borrowed a lot of code from [FunASR](https://github.com/modelscope/FunASR).
-2. We borrowed a lot of code from [FunCodec](https://github.com/modelscope/FunCodec).
-3. We borrowed a lot of code from [Matcha-TTS](https://github.com/shivammehta25/Matcha-TTS).
-4. We borrowed a lot of code from [AcademiCodec](https://github.com/yangdongchao/AcademiCodec).
-5. We borrowed a lot of code from [WeNet](https://github.com/wenet-e2e/wenet).
+**Fun-CosyVoice 3.0** 是基于大语言模型（LLM）的先进文本转语音（TTS）系统，在内容一致性、说话人相似度和韵律自然度方面超越前代产品（CosyVoice 2.0），专为野外多语言零样本语音合成而设计。
 
-## Citations
+### 核心特性
+- **语言覆盖**：支持 9 种常用语言（中文、英语、日语、韩语、德语、西班牙语、法语、意大利语、俄语），18+ 种中文方言/口音
+- **内容一致性与自然度**：在内容一致性、说话人相似度和韵律自然度方面达到最先进水平
+- **发音修复**：支持中文拼音和英语 CMU 音素的发音修复，提供更多可控性，适合生产使用
+- **文本归一化**：支持数字、特殊符号和各种文本格式的朗读，无需传统前端模块
+- **双向流式**：支持文本输入流和音频输出流，延迟低至 150ms 同时保持高质量音频输出
+- **指令支持**：支持语言、方言、情感、速度、音量等多种指令
 
-``` bibtex
+详细评测数据请参考 [官方文档](https://github.com/FunAudioLLM/CosyVoice)。
+
+## 📚 相关链接
+
+- **Fun-CosyVoice 3.0**: [Demos](https://funaudiollm.github.io/cosyvoice3/) | [Paper](https://arxiv.org/pdf/2505.17589) | [Modelscope](https://www.modelscope.cn/models/FunAudioLLM/Fun-CosyVoice3-0.5B-2512) | [Huggingface](https://huggingface.co/FunAudioLLM/Fun-CosyVoice3-0.5B-2512)
+- **CosyVoice 2.0**: [Demos](https://funaudiollm.github.io/cosyvoice2/) | [Paper](https://arxiv.org/pdf/2412.10117) | [Modelscope](https://www.modelscope.cn/models/iic/CosyVoice2-0.5B)
+- **CosyVoice 1.0**: [Demos](https://fun-audio-llm.github.io) | [Paper](https://funaudiollm.github.io/pdf/CosyVoice_v1.pdf) | [Modelscope](https://www.modelscope.cn/models/iic/CosyVoice-300M)
+
+## 💬 讨论与交流
+
+- [Github Issues](https://github.com/FunAudioLLM/CosyVoice/issues)
+- 钉钉官方交流群（见官方仓库）
+
+## 📄 致谢
+
+本项目借鉴了以下开源项目的代码：
+1. [FunASR](https://github.com/modelscope/FunASR)
+2. [FunCodec](https://github.com/modelscope/FunCodec)
+3. [Matcha-TTS](https://github.com/shivammehta25/Matcha-TTS)
+4. [AcademiCodec](https://github.com/yangdongchao/AcademiCodec)
+5. [WeNet](https://github.com/wenet-e2e/wenet)
+
+## 📝 引用
+
+```bibtex
 @article{du2024cosyvoice,
   title={Cosyvoice: A scalable multilingual zero-shot text-to-speech synthesizer based on supervised semantic tokens},
   author={Du, Zhihao and Chen, Qian and Zhang, Shiliang and Hu, Kai and Lu, Heng and Yang, Yexin and Hu, Hangrui and Zheng, Siqi and Gu, Yue and Ma, Ziyang and others},
@@ -236,29 +252,21 @@ You can also scan the QR code to join our official Dingding chat group.
   year={2024}
 }
 
-@article{du2024cosyvoice,
+@article{du2024cosyvoice2,
   title={Cosyvoice 2: Scalable streaming speech synthesis with large language models},
   author={Du, Zhihao and Wang, Yuxuan and Chen, Qian and Shi, Xian and Lv, Xiang and Zhao, Tianyu and Gao, Zhifu and Yang, Yexin and Gao, Changfeng and Wang, Hui and others},
   journal={arXiv preprint arXiv:2412.10117},
   year={2024}
 }
 
-@article{du2025cosyvoice,
+@article{du2025cosyvoice3,
   title={CosyVoice 3: Towards In-the-wild Speech Generation via Scaling-up and Post-training},
   author={Du, Zhihao and Gao, Changfeng and Wang, Yuxuan and Yu, Fan and Zhao, Tianyu and Wang, Hao and Lv, Xiang and Wang, Hui and Shi, Xian and An, Keyu and others},
   journal={arXiv preprint arXiv:2505.17589},
   year={2025}
 }
-
-@inproceedings{lyu2025build,
-  title={Build LLM-Based Zero-Shot Streaming TTS System with Cosyvoice},
-  author={Lyu, Xiang and Wang, Yuxuan and Zhao, Tianyu and Wang, Hao and Liu, Huadai and Du, Zhihao},
-  booktitle={ICASSP 2025-2025 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP)},
-  pages={1--2},
-  year={2025},
-  organization={IEEE}
-}
 ```
 
-## Disclaimer
-The content provided above is for academic purposes only and is intended to demonstrate technical capabilities. Some examples are sourced from the internet. If any content infringes on your rights, please contact us to request its removal.
+## ⚠️ 免责声明
+
+以上内容仅供学术目的，旨在展示技术能力。部分示例来自互联网。如有任何内容侵犯您的权利，请联系我们删除。
